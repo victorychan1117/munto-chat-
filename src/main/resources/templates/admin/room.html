@@ -59,10 +59,10 @@
                             <span class="participant-gender" th:if="${p.gender != null}"
                                   th:text="${p.gender.name() == 'MALE' ? '♂' : '♀'}"
                                   th:classappend="${p.gender.name() == 'MALE' ? 'male' : 'female'}">성별</span>
-                            <span class="note-count" th:text="${p.noteReceivedCount} + '표'">0표</span>
+                            <span class="note-count" th:text="${p.noteReceivedCount} + (${room.mode.name() == 'ALL'} ? '표' : '통')">0</span>
                         </div>
                         <div class="participant-actions">
-                            <a th:href="@{'/admin/room/' + ${room.roomCode} + '/notes/' + ${p.id}}" class="btn btn-small btn-outline">투표 내역</a>
+                            <a th:href="@{'/admin/room/' + ${room.roomCode} + '/notes/' + ${p.id}}" class="btn btn-small btn-outline" th:text="${room.mode.name() == 'ALL' ? '투표 내역' : '쪽지 보기'}">내역</a>
                             <form th:action="@{'/admin/room/' + ${room.roomCode} + '/participant/' + ${p.id} + '/delete'}" method="post" style="display:inline">
                                 <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
                             </form>
@@ -74,7 +74,7 @@
 
         <!-- Actions -->
         <div class="section" style="text-align:center; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-            <a th:href="@{'/admin/room/' + ${room.roomCode} + '/notes-all'}" class="btn btn-primary">전체 투표 내역</a>
+            <a th:href="@{'/admin/room/' + ${room.roomCode} + '/notes-all'}" class="btn btn-primary" th:text="${room.mode.name() == 'ALL' ? '전체 투표 내역' : '전체 쪽지 보기'}">내역</a>
             <a th:href="@{'/room/' + ${room.roomCode} + '/ranking?from=admin'}" class="btn btn-secondary">실시간 랭킹 보기</a>
         </div>
     </div>

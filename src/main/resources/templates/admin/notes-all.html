@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>전체 투표 내역</title>
+    <title th:text="${room.mode.name() == 'ALL' ? '전체 투표 내역' : '전체 쪽지'}">내역</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,19 +13,20 @@
     <div class="card">
         <a th:href="@{'/admin/room/' + ${room.roomCode}}" class="back-link">&larr; 돌아가기</a>
 
-        <h1 class="title">전체 투표 내역</h1>
-        <p class="subtitle" th:text="${room.name} + ' · 총 ' + ${#lists.size(notes)} + '표'">방 이름</p>
+        <h1 class="title" th:text="${room.mode.name() == 'ALL' ? '전체 투표 내역' : '전체 쪽지'}">내역</h1>
+        <p class="subtitle" th:text="${room.name} + ' · 총 ' + ${#lists.size(notes)} + (${room.mode.name() == 'ALL'} ? '표' : '통')">방 이름</p>
 
         <div th:if="${#lists.isEmpty(notes)}" class="empty-state">
-            아직 투표 내역이 없습니다.
+            아직 내역이 없습니다.
         </div>
 
         <div class="notes-list">
             <div th:each="note : ${notes}" class="note-card">
                 <div class="note-header">
-                    <span class="note-sender" th:text="${note.sender.nickname} + ' → ' + ${note.receiver.nickname}">투표자 → 대상</span>
+                    <span class="note-sender" th:text="${note.sender.nickname} + ' → ' + ${note.receiver.nickname}">보낸사람 → 받는사람</span>
                     <span class="note-time" th:text="${#temporals.format(note.createdAt, 'MM/dd HH:mm')}">시간</span>
                 </div>
+                <p th:if="${note.content != null}" class="note-content" th:text="${note.content}">내용</p>
             </div>
         </div>
     </div>

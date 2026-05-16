@@ -65,7 +65,7 @@
             html += '<div class="ranking-item rank-' + item.rank + '">' +
                 '<span class="rank-medal">' + medal + '</span>' +
                 '<span class="rank-name">' + item.nickname + genderIcon + '</span>' +
-                '<span class="rank-count">' + item.count + '표</span>' +
+                '<span class="rank-count">' + item.count + (roomMode === 'ALL' ? '표' : '통') + '</span>' +
                 '</div>';
         });
         container.innerHTML = html;

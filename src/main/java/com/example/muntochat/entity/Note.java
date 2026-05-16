@@ -29,6 +29,9 @@ public class Note {
     @JoinColumn(name = "receiver_id", nullable = false)
     private Participant receiver;
 
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
     private LocalDateTime createdAt;
 
     @PrePersist

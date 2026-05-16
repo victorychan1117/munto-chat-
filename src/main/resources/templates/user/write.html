@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>쪽지 작성</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1 class="title">쪽지 작성</h1>
+        <p class="subtitle"><span th:text="${receiver.nickname}">별칭</span>님에게 보내는 쪽지</p>
+
+        <form th:action="@{'/room/' + ${room.roomCode} + '/send'}" method="post" class="form">
+            <input type="hidden" name="nickname" th:value="${nickname}">
+            <input type="hidden" name="receiverId" th:value="${receiver.id}">
+            <div class="form-group">
+                <label for="content">내용</label>
+                <textarea id="content" name="content" placeholder="쪽지 내용을 작성해주세요" maxlength="500" required
+                          oninput="document.getElementById('charCount').textContent = this.value.length + '/500'"></textarea>
+                <span id="charCount" class="char-count">0/500</span>
+            </div>
+            <button type="submit" class="btn btn-primary">보내기</button>
+        </form>
+
+        <div class="bottom-actions" style="margin-top:12px;">
+            <a th:href="@{'/room/' + ${room.roomCode} + '/select?nickname=' + ${nickname}}" class="btn btn-outline">뒤로가기</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

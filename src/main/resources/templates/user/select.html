@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>투표하기</title>
+    <title th:text="${room.mode.name() == 'ALL' ? '투표하기' : '쪽지 보내기'}">선택</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,14 +11,15 @@
 <body>
 <div class="container">
     <div class="card">
-        <h1 class="title">인기투표</h1>
-        <p class="subtitle">누구에게 투표할까요?</p>
+        <h1 class="title" th:text="${room.mode.name() == 'ALL' ? '인기투표' : '쪽지 보내기'}">선택</h1>
+        <p class="subtitle" th:text="${room.mode.name() == 'ALL' ? '누구에게 투표할까요?' : '누구에게 쪽지를 보낼까요?'}">설명</p>
 
         <div th:if="${#lists.isEmpty(candidates)}" class="empty-state">
-            투표할 수 있는 참여자가 없습니다.
+            선택할 수 있는 참여자가 없습니다.
         </div>
 
-        <div class="candidate-grid">
+        <!-- 전체 모드: 바로 투표 -->
+        <div th:if="${room.mode.name() == 'ALL'}" class="candidate-grid">
             <form th:each="c : ${candidates}"
                   th:action="@{'/room/' + ${room.roomCode} + '/vote'}"
                   method="post"
@@ -33,6 +34,19 @@
                     <span class="candidate-name" th:text="${c.nickname}">별칭</span>
                 </button>
             </form>
+        </div>
+
+        <!-- 이성 모드: 쪽지 작성 페이지로 이동 -->
+        <div th:if="${room.mode.name() == 'GENDER'}" class="candidate-grid">
+            <a th:each="c : ${candidates}"
+               th:href="@{'/room/' + ${room.roomCode} + '/write?nickname=' + ${nickname} + '&receiverId=' + ${c.id}}"
+               class="candidate-card">
+                <div class="candidate-avatar"
+                     th:classappend="${c.gender != null ? (c.gender.name() == 'MALE' ? 'avatar-male' : 'avatar-female') : 'avatar-default'}">
+                    <span th:text="${c.gender != null ? (c.gender.name() == 'MALE' ? '♂' : '♀') : '?'}">?</span>
+                </div>
+                <span class="candidate-name" th:text="${c.nickname}">별칭</span>
+            </a>
         </div>
 
         <div class="bottom-actions">
