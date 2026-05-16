@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 인기 랭킹</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1 class="title">실시간 인기 랭킹</h1>
+        <p class="subtitle" th:text="${room.name}">방 이름</p>
+
+        <div id="ranking-content">
+            <!-- Overall ranking -->
+            <div class="ranking-section">
+                <h2 class="section-title">전체 TOP 3</h2>
+                <div id="overall-ranking" class="ranking-list">
+                    <div class="empty-state">로딩 중...</div>
+                </div>
+            </div>
+
+            <!-- Gender rankings (only for GENDER mode) -->
+            <div th:if="${room.mode.name() == 'GENDER'}" id="gender-rankings">
+                <div class="ranking-section">
+                    <h2 class="section-title">남성 TOP 3 ♂</h2>
+                    <div id="male-ranking" class="ranking-list">
+                        <div class="empty-state">로딩 중...</div>
+                    </div>
+                </div>
+                <div class="ranking-section">
+                    <h2 class="section-title">여성 TOP 3 ♀</h2>
+                    <div id="female-ranking" class="ranking-list">
+                        <div class="empty-state">로딩 중...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-actions">
+            <a th:if="${from == 'admin'}" th:href="@{'/admin/room/' + ${room.roomCode}}" class="btn btn-outline">관리자로 돌아가기</a>
+            <a th:unless="${from == 'admin'}" th:href="@{'/room/' + ${room.roomCode}}" class="btn btn-outline">돌아가기</a>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const roomCode = [[${room.roomCode}]];
+    const roomMode = [[${room.mode.name()}]];
+    const medals = ['🥇', '🥈', '🥉'];
+
+    function renderRanking(containerId, data) {
+        const container = document.getElementById(containerId);
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div class="empty-state">아직 쪽지를 받은 사람이 없어요</div>';
+            return;
+        }
+        let html = '';
+        data.forEach(function(item) {
+            const medal = medals[item.rank - 1] || '';
+            const genderIcon = item.gender === 'MALE' ? ' ♂' : (item.gender === 'FEMALE' ? ' ♀' : '');
+            html += '<div class="ranking-item rank-' + item.rank + '">' +
+                '<span class="rank-medal">' + medal + '</span>' +
+                '<span class="rank-name">' + item.nickname + genderIcon + '</span>' +
+                '<span class="rank-count">' + item.count + '통</span>' +
+                '</div>';
+        });
+        container.innerHTML = html;
+    }
+
+    function fetchRanking() {
+        fetch('/api/room/' + roomCode + '/ranking')
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                renderRanking('overall-ranking', data.overall);
+                if (roomMode === 'GENDER') {
+                    renderRanking('male-ranking', data.male);
+                    renderRanking('female-ranking', data.female);
+                }
+            })
+            .catch(function(err) {
+                console.error('랭킹 로드 실패:', err);
+            });
+    }
+
+    fetchRanking();
+    setInterval(fetchRanking, 3000);
+</script>
+</body>
+</html>

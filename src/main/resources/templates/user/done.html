@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전송 완료</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="card done-card">
+        <div class="done-icon">💌</div>
+        <h1 class="title">쪽지를 보냈어요!</h1>
+        <p class="subtitle">익명으로 안전하게 전달되었습니다.</p>
+
+        <div class="done-actions">
+            <a th:href="@{'/room/' + ${room.roomCode} + '/ranking'}" class="btn btn-primary">실시간 랭킹 보기</a>
+            <a th:href="@{'/room/' + ${room.roomCode}}" class="btn btn-outline">처음으로</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

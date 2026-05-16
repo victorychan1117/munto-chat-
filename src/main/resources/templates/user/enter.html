@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${room.name}">방 입장</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1 class="title" th:text="${room.name}">방 이름</h1>
+        <p class="subtitle">본인의 별칭을 입력해주세요</p>
+
+        <div th:if="${error}" class="error-msg" th:text="${error}">에러</div>
+
+        <form th:action="@{'/room/' + ${room.roomCode} + '/enter'}" method="post" class="form">
+            <div class="form-group">
+                <label for="nickname">별칭</label>
+                <input type="text" id="nickname" name="nickname" placeholder="관리자가 등록한 별칭을 입력하세요" required>
+            </div>
+            <button type="submit" class="btn btn-primary">입장하기</button>
+        </form>
+
+        <div class="divider"></div>
+        <a th:href="@{'/room/' + ${room.roomCode} + '/ranking'}" class="link-center">실시간 인기 랭킹 보기</a>
+    </div>
+</div>
+</body>
+</html>

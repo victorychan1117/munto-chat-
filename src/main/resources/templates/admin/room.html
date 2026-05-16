@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'관리 - ' + ${room.name}">방 관리</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <a th:href="@{/admin}" class="back-link">← 방 목록</a>
+        <h1 class="title" th:text="${room.name}">방 이름</h1>
+        <div class="badge" th:text="${room.mode.name() == 'ALL' ? '전체 모드' : '이성 모드'}">모드</div>
+
+        <!-- Share Link -->
+        <div class="share-section">
+            <label>공유 링크</label>
+            <div class="share-link-box">
+                <input type="text" id="shareLink" th:value="@{'/room/' + ${room.roomCode}}" readonly>
+                <button type="button" class="btn btn-small" onclick="copyLink()">복사</button>
+            </div>
+            <p class="hint">이 링크를 참여자들에게 공유하세요.</p>
+        </div>
+
+        <div th:if="${error}" class="error-msg" th:text="${error}">에러</div>
+
+        <!-- Add Participant -->
+        <div class="section">
+            <h2 class="section-title">참여자 추가</h2>
+            <form th:action="@{'/admin/room/' + ${room.roomCode} + '/participant'}" method="post" class="form-inline">
+                <input type="text" name="nickname" placeholder="별칭" required>
+                <select name="gender">
+                    <option value="MALE">남성</option>
+                    <option value="FEMALE">여성</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-small">추가</button>
+            </form>
+        </div>
+
+        <!-- Participant List (Toggle) -->
+        <div class="section">
+            <div class="toggle-header" onclick="toggleParticipants()">
+                <h2 class="section-title" style="margin-bottom:0; cursor:pointer;">
+                    참여자 목록 (<span th:text="${#lists.size(participants)}">0</span>명)
+                    <span id="toggleArrow" class="toggle-arrow">▶</span>
+                </h2>
+            </div>
+            <div id="participantContent" class="hidden">
+                <div th:if="${#lists.isEmpty(participants)}" class="empty-state">
+                    아직 참여자가 없습니다.
+                </div>
+                <div class="participant-list" style="margin-top:10px;">
+                    <div th:each="p : ${participants}" class="participant-item">
+                        <div class="participant-info">
+                            <span class="participant-name" th:text="${p.nickname}">별칭</span>
+                            <span class="participant-gender" th:if="${p.gender != null}"
+                                  th:text="${p.gender.name() == 'MALE' ? '♂' : '♀'}"
+                                  th:classappend="${p.gender.name() == 'MALE' ? 'male' : 'female'}">성별</span>
+                            <span class="note-count" th:text="'쪽지 ' + ${p.noteReceivedCount} + '개'">쪽지 0개</span>
+                        </div>
+                        <div class="participant-actions">
+                            <a th:href="@{'/admin/room/' + ${room.roomCode} + '/notes/' + ${p.id}}" class="btn btn-small btn-outline">쪽지 보기</a>
+                            <form th:action="@{'/admin/room/' + ${room.roomCode} + '/participant/' + ${p.id} + '/delete'}" method="post" style="display:inline">
+                                <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="section" style="text-align:center; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+            <a th:href="@{'/admin/room/' + ${room.roomCode} + '/notes-all'}" class="btn btn-primary">전체 쪽지 보기</a>
+            <a th:href="@{'/room/' + ${room.roomCode} + '/ranking?from=admin'}" class="btn btn-secondary">실시간 랭킹 보기</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleParticipants() {
+        var content = document.getElementById('participantContent');
+        var arrow = document.getElementById('toggleArrow');
+        content.classList.toggle('hidden');
+        if (content.classList.contains('hidden')) {
+            arrow.textContent = '▶';
+        } else {
+            arrow.textContent = '▼';
+        }
+    }
+
+    function copyLink() {
+        const input = document.getElementById('shareLink');
+        const fullUrl = window.location.origin + input.value;
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(fullUrl).then(function() {
+                alert('링크가 복사되었습니다!\n' + fullUrl);
+            });
+        } else {
+            var textarea = document.createElement('textarea');
+            textarea.value = fullUrl;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('링크가 복사되었습니다!\n' + fullUrl);
+        }
+    }
+</script>
+</body>
+</html>

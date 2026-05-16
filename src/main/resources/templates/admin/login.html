@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 로그인</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1 class="title">Munto Chat</h1>
+        <p class="subtitle">관리자 비밀번호를 입력해주세요</p>
+
+        <div th:if="${error}" class="error-msg" th:text="${error}">에러</div>
+
+        <form th:action="@{/admin/login}" method="post" class="form">
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+            </div>
+            <button type="submit" class="btn btn-primary">입장하기</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

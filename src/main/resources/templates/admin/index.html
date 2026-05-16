@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Munto Chat - 관리자</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1 class="title">Munto Chat</h1>
+        <p class="subtitle">익명 쪽지 전달 서비스</p>
+
+        <div th:if="${error}" class="error-msg" th:text="${error}">에러</div>
+
+        <!-- 방 만들기 -->
+        <div class="section">
+            <h2 class="section-title">방 만들기</h2>
+            <form th:action="@{/admin/create}" method="post" class="form">
+                <div class="form-group">
+                    <label for="name">방 이름</label>
+                    <input type="text" id="name" name="name" placeholder="예: 우리반 쪽지 전달" required>
+                </div>
+
+                <div class="form-group">
+                    <label>모드 선택</label>
+                    <div class="radio-group">
+                        <label class="radio-card">
+                            <input type="radio" name="mode" value="ALL" checked>
+                            <div class="radio-content">
+                                <span class="radio-icon">👥</span>
+                                <span class="radio-label">전체 모드</span>
+                                <span class="radio-desc">모든 참여자에게 쪽지 전송</span>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="mode" value="GENDER">
+                            <div class="radio-content">
+                                <span class="radio-icon">💕</span>
+                                <span class="radio-label">이성 모드</span>
+                                <span class="radio-desc">반대 성별에게만 쪽지 전송</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary"
+                        th:disabled="${pool.isEmpty()}"
+                        th:classappend="${pool.isEmpty() ? 'btn-disabled' : ''}">
+                    등록된 참여자들로 방 만들기
+                </button>
+                <p th:if="${pool.isEmpty()}" class="hint" style="text-align:center;">참여자를 먼저 등록하세요</p>
+            </form>
+        </div>
+
+        <!-- 진행 중인 방 -->
+        <div th:if="${!rooms.isEmpty()}" class="section">
+            <div class="divider"></div>
+            <h2 class="section-title">진행 중인 방</h2>
+            <div class="participant-list">
+                <div th:each="r : ${rooms}" class="participant-item">
+                    <a th:href="@{'/admin/room/' + ${r.roomCode}}"
+                       style="flex:1; text-decoration:none; color:inherit; display:flex; align-items:center; gap:8px;">
+                        <span class="participant-name" th:text="${r.name}">방 이름</span>
+                        <span class="badge" style="margin:0; display:inline; font-size:0.7rem; padding:2px 8px;"
+                              th:text="${r.mode.name() == 'ALL' ? '전체' : '이성'}">모드</span>
+                    </a>
+                    <form th:action="@{'/admin/room/' + ${r.roomCode} + '/delete'}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('방을 삭제하면 모든 참여자와 쪽지가 삭제됩니다. 정말 삭제하시겠습니까?')">삭제</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 참여자 등록 -->
+        <div class="section">
+            <h2 class="section-title">참여자 등록</h2>
+            <form th:action="@{/admin/pool/add}" method="post" class="form-inline">
+                <input type="text" name="nickname" placeholder="별칭" required>
+                <select name="gender" id="genderSelect">
+                    <option value="MALE" th:selected="${lastGender == null || lastGender.name() == 'MALE'}">남성</option>
+                    <option value="FEMALE" th:selected="${lastGender != null && lastGender.name() == 'FEMALE'}">여성</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-small">추가</button>
+            </form>
+
+            <div th:if="${pool.isEmpty()}" class="empty-state">참여자를 추가해주세요</div>
+
+            <div th:unless="${pool.isEmpty()}" class="participant-list" style="margin-top:10px;">
+                <div th:each="p : ${pool}" class="participant-item">
+                    <div class="participant-info">
+                        <span class="participant-name" th:text="${p.nickname}">별칭</span>
+                        <span class="participant-gender"
+                              th:text="${p.gender.name() == 'MALE' ? '♂ 남' : '♀ 여'}"
+                              th:classappend="${p.gender.name() == 'MALE' ? 'male' : 'female'}">성별</span>
+                    </div>
+                    <form th:action="@{'/admin/pool/' + ${p.id} + '/delete'}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-small btn-danger">삭제</button>
+                    </form>
+                </div>
+            </div>
+            <p th:unless="${pool.isEmpty()}" class="hint" style="margin-top:8px;"
+               th:text="'총 ' + ${pool.size()} + '명 등록됨'">명수</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
