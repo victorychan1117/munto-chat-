@@ -55,7 +55,7 @@
     function renderRanking(containerId, data) {
         const container = document.getElementById(containerId);
         if (!data || data.length === 0) {
-            container.innerHTML = '<div class="empty-state">아직 쪽지를 받은 사람이 없어요</div>';
+            container.innerHTML = '<div class="empty-state">아직 투표가 없어요</div>';
             return;
         }
         let html = '';
@@ -65,7 +65,7 @@
             html += '<div class="ranking-item rank-' + item.rank + '">' +
                 '<span class="rank-medal">' + medal + '</span>' +
                 '<span class="rank-name">' + item.nickname + genderIcon + '</span>' +
-                '<span class="rank-count">' + item.count + '통</span>' +
+                '<span class="rank-count">' + item.count + '표</span>' +
                 '</div>';
         });
         container.innerHTML = html;

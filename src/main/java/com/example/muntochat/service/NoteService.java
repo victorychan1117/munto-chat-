@@ -23,7 +23,7 @@ public class NoteService {
     private final ParticipantRepository participantRepository;
     private final RoomRepository roomRepository;
 
-    public boolean hasSentNote(String roomCode, String senderNickname) {
+    public boolean hasVoted(String roomCode, String senderNickname) {
         Room room = roomRepository.findByRoomCode(roomCode)
                 .orElseThrow(() -> new IllegalArgumentException("방을 찾을 수 없습니다."));
         Participant sender = participantRepository.findByRoomAndNickname(room, senderNickname)
@@ -32,19 +32,19 @@ public class NoteService {
         return noteRepository.existsBySender(sender);
     }
 
-    public Note sendNote(String roomCode, String senderNickname, Long receiverId, String content) {
+    public Note vote(String roomCode, String senderNickname, Long receiverId) {
         Room room = roomRepository.findByRoomCode(roomCode)
                 .orElseThrow(() -> new IllegalArgumentException("방을 찾을 수 없습니다."));
 
         Participant sender = participantRepository.findByRoomAndNickname(room, senderNickname)
-                .orElseThrow(() -> new IllegalArgumentException("보내는 사람을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("투표자를 찾을 수 없습니다."));
 
         if (noteRepository.existsBySender(sender)) {
-            throw new IllegalStateException("이미 쪽지를 보냈습니다.");
+            throw new IllegalStateException("이미 투표했습니다.");
         }
 
         Participant receiver = participantRepository.findById(receiverId)
-                .orElseThrow(() -> new IllegalArgumentException("받는 사람을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("대상을 찾을 수 없습니다."));
 
         receiver.setNoteReceivedCount(receiver.getNoteReceivedCount() + 1);
         participantRepository.save(receiver);
@@ -53,7 +53,6 @@ public class NoteService {
                 .room(room)
                 .sender(sender)
                 .receiver(receiver)
-                .content(content)
                 .build();
         return noteRepository.save(note);
     }

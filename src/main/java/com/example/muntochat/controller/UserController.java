@@ -43,9 +43,9 @@ public class UserController {
             return "user/enter";
         }
 
-        if (noteService.hasSentNote(roomCode, nickname)) {
+        if (noteService.hasVoted(roomCode, nickname)) {
             model.addAttribute("room", room);
-            model.addAttribute("error", "이미 쪽지를 보냈습니다. 한 번만 보낼 수 있어요.");
+            model.addAttribute("error", "이미 투표했습니다. 한 번만 투표할 수 있어요.");
             return "user/enter";
         }
 
@@ -65,7 +65,6 @@ public class UserController {
             candidates = participantRepository.findByRoom(room);
         }
 
-        // Exclude self
         candidates = candidates.stream()
                 .filter(p -> !p.getId().equals(me.getId()))
                 .collect(Collectors.toList());
@@ -76,34 +75,18 @@ public class UserController {
         return "user/select";
     }
 
-    @GetMapping("/{roomCode}/write")
-    public String writePage(@PathVariable String roomCode,
-                            @RequestParam String nickname,
-                            @RequestParam Long receiverId,
-                            Model model) {
-        Room room = roomService.getRoom(roomCode);
-        Participant receiver = participantRepository.findById(receiverId)
-                .orElseThrow(() -> new IllegalArgumentException("받는 사람을 찾을 수 없습니다."));
-
-        model.addAttribute("room", room);
-        model.addAttribute("nickname", nickname);
-        model.addAttribute("receiver", receiver);
-        return "user/write";
-    }
-
-    @PostMapping("/{roomCode}/send")
-    public String sendNote(@PathVariable String roomCode,
-                           @RequestParam String nickname,
-                           @RequestParam Long receiverId,
-                           @RequestParam String content,
-                           Model model) {
-        if (noteService.hasSentNote(roomCode, nickname)) {
+    @PostMapping("/{roomCode}/vote")
+    public String vote(@PathVariable String roomCode,
+                       @RequestParam String nickname,
+                       @RequestParam Long receiverId,
+                       Model model) {
+        if (noteService.hasVoted(roomCode, nickname)) {
             Room room = roomService.getRoom(roomCode);
             model.addAttribute("room", room);
-            model.addAttribute("error", "이미 쪽지를 보냈습니다. 한 번만 보낼 수 있어요.");
+            model.addAttribute("error", "이미 투표했습니다. 한 번만 투표할 수 있어요.");
             return "user/enter";
         }
-        noteService.sendNote(roomCode, nickname, receiverId, content);
+        noteService.vote(roomCode, nickname, receiverId);
         return "redirect:/room/" + roomCode + "/done?nickname=" + URLEncoder.encode(nickname, StandardCharsets.UTF_8);
     }
 
